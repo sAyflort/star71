@@ -10,6 +10,7 @@ public class Bullet implements Poolable {
     private Vector2 position;
     private Vector2 velocity;
     private boolean active;
+    private Ship ship;
 
     @Override
     public boolean isActive() {
@@ -22,6 +23,10 @@ public class Bullet implements Poolable {
 
     public Vector2 getVelocity() {
         return velocity;
+    }
+
+    public Ship getShip() {
+        return ship;
     }
 
     public Bullet(GameController gc) {
@@ -55,7 +60,8 @@ public class Bullet implements Poolable {
         }
     }
 
-    public void activate(float x, float y, float vx, float vy) {
+    public void activate(float x, float y, float vx, float vy, Ship ship) {
+        this.ship = ship;
         position.set(x, y);
         velocity.set(vx, vy);
         active = true;

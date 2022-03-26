@@ -62,6 +62,11 @@ public class Hero extends Ship {
 
     public Hero(GameController gc) {
         super(gc,700, 100);
+
+        createWeapons();
+        this.weaponNum = 0;
+        this.currentWeapon = weapons[weaponNum];
+
         this.texture = Assets.getInstance().getAtlas().findRegion("ship");
         this.position = new Vector2(640, 360);
         this.hitArea = new Circle(position, 28);
@@ -220,5 +225,53 @@ public class Hero extends Ship {
                 scoreView = score;
             }
         }
+    }
+
+    private void createWeapons() {
+        weapons = new Weapon[]{
+                new Weapon(gc, this, 0.2f, 1, 400, 100,
+                        new Vector3[]{
+                                new Vector3(28, -90, -10),
+                                new Vector3(28, 90, 10),
+                        }),
+                new Weapon(gc, this, 0.2f, 1, 500, 200,
+                        new Vector3[]{
+                                new Vector3(28, 0, 0),
+                                new Vector3(28, -90, -10),
+                                new Vector3(28, 90, 10),
+                        }),
+                new Weapon(gc, this, 0.1f, 1, 700, 500,
+                        new Vector3[]{
+                                new Vector3(28, 0, 0),
+                                new Vector3(28, -90, -10),
+                                new Vector3(28, 90, 10),
+                        }),
+                new Weapon(gc, this, 0.1f, 1, 700, 800,
+                        new Vector3[]{
+                                new Vector3(28, 0, 0),
+                                new Vector3(28, -90, -10),
+                                new Vector3(28, -90, -20),
+                                new Vector3(28, 90, 10),
+                                new Vector3(28, 90, 20),
+                        }),
+                new Weapon(gc, this, 0.1f, 2, 700, 1000,
+                        new Vector3[]{
+                                new Vector3(28, 0, 0),
+                                new Vector3(28, -90, -10),
+                                new Vector3(28, -90, -20),
+                                new Vector3(28, 90, 10),
+                                new Vector3(28, 90, 20),
+                        }),
+                new Weapon(gc, this, 0.2f, 10, 700, 1000,
+                        new Vector3[]{
+                                new Vector3(28, 0, 0),
+                                new Vector3(28, -90, -10),
+                                new Vector3(28, -90, -20),
+                                new Vector3(28, -90, -30),
+                                new Vector3(28, 90, 10),
+                                new Vector3(28, 90, 20),
+                                new Vector3(28, 90, 30),
+                        })
+        };
     }
 }

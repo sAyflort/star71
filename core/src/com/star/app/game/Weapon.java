@@ -58,7 +58,7 @@ public class Weapon {
                 vx = ship.getVelocity().x + bulletSpeed * MathUtils.cosDeg(ship.getAngle() + slots[i].z);
                 vy = ship.getVelocity().y + bulletSpeed * MathUtils.sinDeg(ship.getAngle() + slots[i].z);
 
-                gc.getBulletController().setup(x, y, vx, vy);
+                gc.getBulletController().setup(x, y, vx, vy, ship);
             }
         }
     }
