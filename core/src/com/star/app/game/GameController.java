@@ -2,7 +2,6 @@ package com.star.app.game;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
-import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
@@ -18,6 +17,7 @@ public class GameController {
     private PowerUpsController powerUpsController;
     private InfoController infoController;
     private Hero hero;
+    private EnemyShip[] enemyShips;
     private Vector2 tempVec;
     private Stage stage;
     private boolean pause;
@@ -70,6 +70,10 @@ public class GameController {
         return hero;
     }
 
+    public EnemyShip[] getEnemy() {
+        return enemyShips;
+    }
+
     public GameController(SpriteBatch batch) {
         this.background = new Background(this);
         this.bulletController = new BulletController(this);
@@ -78,12 +82,14 @@ public class GameController {
         this.powerUpsController = new PowerUpsController(this);
         this.infoController = new InfoController();
         this.hero = new Hero(this);
+      //  this.enemy = new EnemyShip(this, 500, 100, level);
         this.tempVec = new Vector2();
         this.stage = new Stage(ScreenManager.getInstance().getViewport(), batch);
         this.stage.addActor(hero.getShop());
         Gdx.input.setInputProcessor(stage);
         this.level = 1;
         generateBigAsteroids(2);
+        this.enemyShips = new EnemyShip[]{new EnemyShip(this, 500, 100, level)};
 
         this.music = Assets.getInstance().getAssetManager().get("audio/mortal.mp3");
         this.music.setLooping(true);
@@ -111,6 +117,10 @@ public class GameController {
         powerUpsController.update(dt);
         infoController.update(dt);
         hero.update(dt);
+        for (int i = 0; i < enemyShips.length; i++) {
+            enemyShips[i].update(dt);
+        }
+
         stage.act(dt);
         checkCollisions();
         if (!hero.isAlive()) {
@@ -119,6 +129,14 @@ public class GameController {
         if (asteroidController.getActiveList().size() == 0) {
             level++;
             generateBigAsteroids(level + 2);
+            if (level <= 5) {
+                enemyShips = new EnemyShip[]{new EnemyShip(this, 500, 100, level)};
+            } else {
+                enemyShips = new EnemyShip[level-5+1];
+                for (int i = 0; i < enemyShips.length; i++) {
+                    enemyShips[i] = new EnemyShip(this, 500, 100, level);
+                }
+            }
             timer = 0;
         }
     }
@@ -126,26 +144,14 @@ public class GameController {
 
     public void checkCollisions() {
         //столкновение астероидов и героя
-        for (int i = 0; i < asteroidController.getActiveList().size(); i++) {
-            Asteroid a = asteroidController.getActiveList().get(i);
-            if (hero.getHitArea().overlaps(a.getHitArea())) {
-                float dst = a.getPosition().dst(hero.getPosition());
-                float halfOverLen = (a.getHitArea().radius + hero.getHitArea().radius - dst) / 2.0f;
-                tempVec.set(hero.getPosition()).sub(a.getPosition()).nor();
-                hero.getPosition().mulAdd(tempVec, halfOverLen);
-                a.getPosition().mulAdd(tempVec, -halfOverLen);
-
-                float sumScl = hero.getHitArea().radius * 2 + a.getHitArea().radius;
-                hero.getVelocity().mulAdd(tempVec, 200.0f * a.getHitArea().radius / sumScl);
-                a.getVelocity().mulAdd(tempVec, -200.0f * hero.getHitArea().radius / sumScl);
-
-                if (a.takeDamage(2)) {
-                    hero.addScore(a.getHpMax() * 50);
-                }
-                hero.takeDamage(2 * level);
-            }
+        collisionsAstShip(hero);
+        //столкновение астероидов и врага, пуль и врага
+        for (int i = 0; i < enemyShips.length; i++) {
+            collisionsAstShip(enemyShips[i]);
+            collisionsBulShip(enemyShips[i]);
         }
-
+        // столкновение пуль и героя
+        collisionsBulShip(hero);
         //столкновение пуль и астероидов
         for (int i = 0; i < bulletController.getActiveList().size(); i++) {
             Bullet b = bulletController.getActiveList().get(i);
@@ -183,6 +189,47 @@ public class GameController {
                 hero.consume(pu);
                 particleController.getEffectBuilder().takePowerUpsEffect(pu);
                 pu.deactivate();
+            }
+        }
+    }
+
+    public void collisionsAstShip(Ship ship) {
+        for (int i = 0; i < asteroidController.getActiveList().size(); i++) {
+            Asteroid a = asteroidController.getActiveList().get(i);
+            if (ship.getHitArea().overlaps(a.getHitArea())) {
+                float dst = a.getPosition().dst(ship.getPosition());
+                float halfOverLen = (a.getHitArea().radius + ship.getHitArea().radius - dst) / 2.0f;
+                tempVec.set(ship.getPosition()).sub(a.getPosition()).nor();
+                ship.getPosition().mulAdd(tempVec, halfOverLen);
+                a.getPosition().mulAdd(tempVec, -halfOverLen);
+
+                float sumScl = ship.getHitArea().radius * 2 + a.getHitArea().radius;
+                ship.getVelocity().mulAdd(tempVec, 200.0f * a.getHitArea().radius / sumScl);
+                a.getVelocity().mulAdd(tempVec, -200.0f * ship.getHitArea().radius / sumScl);
+
+                if (a.takeDamage(2)) {
+                    if(ship instanceof Hero) {
+                        hero.addScore(a.getHpMax() * 50);
+                    }
+                }
+                ship.takeDamage(2 * level);
+            }
+        }
+    }
+
+    public void collisionsBulShip (Ship ship) {
+        for (int i = 0; i < bulletController.getActiveList().size(); i++) {
+            Bullet b = bulletController.getActiveList().get(i);
+            if(ship.getHitArea().contains(b.getPosition())) {
+                if (ship instanceof EnemyShip && b.getShip() instanceof EnemyShip ) {
+                    continue;
+                }
+                if (ship instanceof Hero && b.getShip() instanceof Hero)  {
+                    continue;
+                }
+                ship.takeDamage(ship instanceof EnemyShip ? hero.getCurrentWeapon().getDamage() :
+                        enemyShips[0].getCurrentWeapon().getDamage());
+                b.deactivate();
             }
         }
     }

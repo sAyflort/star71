@@ -51,9 +51,6 @@ public class Ship {
         this.hpMax = hpMax;
         this.hp = hpMax;
         this.velocity = new Vector2(0, 0);
-        createWeapons();
-        this.weaponNum = 0;
-        this.currentWeapon = weapons[weaponNum];
     }
 
     public void update(float dt) {
@@ -71,54 +68,6 @@ public class Ship {
 
     public void takeDamage(int amount) {
         hp -= amount;
-    }
-
-    private void createWeapons() {
-        weapons = new Weapon[]{
-                new Weapon(gc, this, 0.2f, 1, 400, 100,
-                        new Vector3[]{
-                                new Vector3(28, -90, -10),
-                                new Vector3(28, 90, 10),
-                        }),
-                new Weapon(gc, this, 0.2f, 1, 500, 200,
-                        new Vector3[]{
-                                new Vector3(28, 0, 0),
-                                new Vector3(28, -90, -10),
-                                new Vector3(28, 90, 10),
-                        }),
-                new Weapon(gc, this, 0.1f, 1, 700, 500,
-                        new Vector3[]{
-                                new Vector3(28, 0, 0),
-                                new Vector3(28, -90, -10),
-                                new Vector3(28, 90, 10),
-                        }),
-                new Weapon(gc, this, 0.1f, 1, 700, 800,
-                        new Vector3[]{
-                                new Vector3(28, 0, 0),
-                                new Vector3(28, -90, -10),
-                                new Vector3(28, -90, -20),
-                                new Vector3(28, 90, 10),
-                                new Vector3(28, 90, 20),
-                        }),
-                new Weapon(gc, this, 0.1f, 2, 700, 1000,
-                        new Vector3[]{
-                                new Vector3(28, 0, 0),
-                                new Vector3(28, -90, -10),
-                                new Vector3(28, -90, -20),
-                                new Vector3(28, 90, 10),
-                                new Vector3(28, 90, 20),
-                        }),
-                new Weapon(gc, this, 0.2f, 10, 700, 1000,
-                        new Vector3[]{
-                                new Vector3(28, 0, 0),
-                                new Vector3(28, -90, -10),
-                                new Vector3(28, -90, -20),
-                                new Vector3(28, -90, -30),
-                                new Vector3(28, 90, 10),
-                                new Vector3(28, 90, 20),
-                                new Vector3(28, 90, 30),
-                        })
-        };
     }
 
     public void checkBorders() {

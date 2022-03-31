@@ -33,6 +33,9 @@ public class WorldRenderer {
         gc.getInfoController().render(batch, font32);
         gc.getHero().render(batch);
         gc.getHero().renderGUI(batch, font32);
+        for (int i = 0; i < gc.getEnemy().length; i++) {
+            gc.getEnemy()[i].render(batch);
+        }
         if (gc.getTimer() < 3) {
             sb.setLength(0);
             sb.append("Level ").append(gc.getLevel());
